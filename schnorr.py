@@ -1,27 +1,13 @@
-import os
 import sys
 import random
 
+from utils import *
 import prime
 
 size_default = 128
 
 OPERATIONS = ['-gp', '-gk', '-gx', '-gc', '-gs', '-a']
-NAME_PROTOCOL = os.path.basename(__file__)[:-3]
-
-
-def read(filename):
-    with open(os.path.join('files_' + NAME_PROTOCOL, filename)) as f:
-        return int(f.read())
-
-
-def read_arr(*filenames):
-    return (read(arg) for arg in filenames)
-
-
-def write(filename, value):
-    with open(os.path.join('files_' + NAME_PROTOCOL, filename), 'w') as f:
-        f.write(str(value))
+set_name_protocol(os.path.basename(__file__)[:-3])
 
 
 def gen_params(size):
