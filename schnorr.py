@@ -1,4 +1,3 @@
-import sys
 import random
 
 from utils import *
@@ -7,7 +6,6 @@ import prime
 size_default = 128
 
 OPERATIONS = ['-gp', '-gk', '-gx', '-gc', '-gs', '-a']
-set_name_protocol(os.path.basename(__file__)[:-3])
 
 
 def gen_params(size):
@@ -67,7 +65,7 @@ def main():
     elif operation == '-a':
         validate(*read_arr('p.txt', 'g.txt', 'v.txt', 's.txt', 'c.txt', 'x.txt'))
     else:
-        raise ValueError('Возможные команды: -gp, -gk, -a')
+        raise ValueError('Возможные команды: {}'.format(OPERATIONS))
 
 
 if __name__ == '__main__':

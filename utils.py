@@ -1,11 +1,7 @@
 import os
+import sys
 
-NAME_PROTOCOL = ''
-
-
-def set_name_protocol(name):
-    global NAME_PROTOCOL
-    NAME_PROTOCOL = name
+NAME_PROTOCOL = os.path.basename(sys.argv[0])[:-3]
 
 
 def read(filename):
