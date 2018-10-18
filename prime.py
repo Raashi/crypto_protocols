@@ -2,7 +2,7 @@ import random
 import operator
 import functools
 
-import sympy
+from utils import gcd
 
 
 small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]  # длина - 33 бита
@@ -16,13 +16,6 @@ k_min = 1
 
 def check_len(q, desired_size):
     return len(bin(q)) - 2 == desired_size
-
-
-def gcd(x, y):
-    x, y = max(x, y), min(x, y)
-    while y:
-        x, y = y, x % y
-    return x
 
 
 def isprime(p):
@@ -94,7 +87,6 @@ def gen_pq(size):
             p <<= 1
             if isprime(p + 1):
                 p += 1
-                assert sympy.isprime(p) and sympy.isprime(q)
                 break
         else:
             continue

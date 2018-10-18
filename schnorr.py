@@ -55,15 +55,15 @@ def main():
     if operation == '-gp':
         gen_params(size)
     elif operation == '-gk':
-        gen_keys(*read_arr('p.txt', 'q.txt', 'g.txt'))
+        gen_keys(*read_multiple('p.txt', 'q.txt', 'g.txt'))
     elif operation == '-gx':
-        gen_x(*read_arr('p.txt', 'q.txt', 'g.txt'))
+        gen_x(*read_multiple('p.txt', 'q.txt', 'g.txt'))
     elif operation == '-gc':
         gen_c(read('q.txt'))
     elif operation == '-gs':
-        gen_s(*read_arr('q.txt', 'r.txt', 'c.txt', 'a.txt'))
+        gen_s(*read_multiple('q.txt', 'r.txt', 'c.txt', 'a.txt'))
     elif operation == '-a':
-        validate(*read_arr('p.txt', 'g.txt', 'v.txt', 's.txt', 'c.txt', 'x.txt'))
+        validate(*read_multiple('p.txt', 'g.txt', 'v.txt', 's.txt', 'c.txt', 'x.txt'))
     else:
         raise ValueError('Возможные команды: {}'.format(OPERATIONS))
 

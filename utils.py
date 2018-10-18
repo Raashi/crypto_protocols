@@ -9,10 +9,67 @@ def read(filename):
         return int(f.read())
 
 
-def read_arr(*filenames):
+def read_multiple(*filenames):
     return (read(arg) for arg in filenames)
+
+
+def read_arr(filename):
+    with open(os.path.join('files_' + NAME_PROTOCOL, filename)) as f:
+        return eval(f.read())
+
+
+def read_bytes(filename):
+    with open(os.path.join('files_' + NAME_PROTOCOL, filename), 'rb') as f:
+        return f.read()
 
 
 def write(filename, value):
     with open(os.path.join('files_' + NAME_PROTOCOL, filename), 'w') as f:
         f.write(str(value))
+
+
+def write_bytes(filename, value):
+    with open(os.path.join('files_' + NAME_PROTOCOL, filename), 'wb') as f:
+        f.write(value)
+
+
+def gcd(x, y):
+    x, y = max(x, y), min(x, y)
+    while y:
+        x, y = y, x % y
+    return x
+
+
+def egcd(a, b):
+    r0, r1 = a, b
+    x0, x1 = 1, 0
+    y0, y1 = 0, 1
+
+    q, r2 = r0 // r1, r0 % r1
+    while r2 != 0:
+        x1, x0 = x0 - q * x1, x1
+        y1, y0 = y0 - q * y1, y1
+
+        r1, r0 = r2, r1
+        q, r2 = r0 // r1, r0 % r1
+
+    return r1, x1, y1
+
+
+def get_inverse(a: int, m: int):
+    if a == 0:
+        return 0
+    if gcd(a, m) != 1:
+        raise ValueError('Не существует обратного элемента для a={} по модулю m={}'.format(a, m))
+    d, x, y = egcd(a, m)
+    return x % m
+
+
+def get_bits(bs: bytes, count=-1):
+    res = []
+    for b in bs:
+        for bit in map(int, bin(b)[2:]):
+            res.append(bit)
+            if len(res) == count:
+                return res
+    return res
