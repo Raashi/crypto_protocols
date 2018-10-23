@@ -6,7 +6,7 @@ import hashlib
 
 DEFAULT_PQ_SIZE = 128
 DEFAULT_KEY_SIZE = 10
-DEFAULT_FILENAME = 'ztest.txt'
+DEFAULT_FILENAME = 'test.flac'
 crypto_hash = hashlib.sha1
 
 
@@ -18,7 +18,7 @@ def gen_params(pq_size, k):
     s = []
     while len(s) < k:
         si = random.randint(1, n - 1)
-        if prime.gcd(si, n) == 1:
+        if gcd(si, n) == 1:
             s.append(si)
     v = [pow(get_inverse(si, n), 2, n) for si in s]
 
@@ -40,18 +40,20 @@ def sign_u(n, r):
 
 def sign_e(m, u):
     e = crypto_hash(m + u.to_bytes(len(bin(u)) - 2, byteorder='big')).digest()
-    write_bytes('e.bin', e)
+    e = int.from_bytes(e, byteorder='big')
+    write('e.txt', e)
 
 
-def sign(n, r, k, s, e):
+def sign(n, r, k, e, sk):
     ek = get_bits(e, k)
-    s_sign = r
-    for (si, ei) in zip(s, ek):
-        s_sign = s_sign * pow(si, ei, n) % n
-    write('s.txt', s_sign)
+    s = r
+    for (si, ei) in zip(sk, ek):
+        s = s * pow(si, ei, n) % n
+    write('ds.txt', (e, s))
 
 
-def check_w(n, k, s, v, e):
+def check_w(ds, n, k, v):
+    e, s = ds
     ek = get_bits(e, k)
     w = pow(s, 2, n)
     for (vi, ei) in zip(v, ek):
@@ -61,7 +63,8 @@ def check_w(n, k, s, v, e):
 
 def check_e(m, w):
     es = crypto_hash(m + w.to_bytes(len(bin(w)) - 2, byteorder='big')).digest()
-    write_bytes('es.bin', es)
+    es = int.from_bytes(es, byteorder='big')
+    write('es.txt', es)
 
 
 def check(e, es):
@@ -75,27 +78,26 @@ def main():
     operation = sys.argv[1]
 
     if operation == '-gp':
-        pq_size = DEFAULT_PQ_SIZE if len(sys.argv) < 3 else int(sys.argv[2])
-        key_size = DEFAULT_KEY_SIZE if len(sys.argv) < 4 else int(sys.argv[3])
-        gen_params(pq_size, key_size)
+        gen_params(int(sys.argv[2]), int(sys.argv[3]))
     # SIGNING
     elif operation == '-sr':
         sign_r(read('n.txt'))
     elif operation == '-su':
-        sign_u(*read_multiple('n.txt', 'r.txt'))
+        sign_u(*read_mul('n.txt', 'r.txt'))
     elif operation == '-se':
-        filename = DEFAULT_FILENAME if len(sys.argv) < 3 else sys.argv[2]
-        sign_e(read_bytes(filename), read('u.txt'))
+        sign_e(read_bin(sys.argv[2], False), read('u.txt'))
     elif operation == '-s':
-        sign(*read_multiple('n.txt', 'r.txt', 'k.txt'), read_arr('s_key.txt'), read_bytes('e.bin'))
+        sign(*read_mul('n.txt', 'r.txt', 'k.txt', 'e.txt'), read_struct('s_key.txt'))
     # CHECKING SIGN
     elif operation == '-cw':
-        check_w(*read_multiple('n.txt', 'k.txt', 's.txt'), read_arr('v_key.txt'), read_bytes('e.bin'))
+        check_w(read_struct('ds.txt'), *read_mul('n.txt', 'k.txt'), read_struct('v_key.txt'))
     elif operation == '-ces':
-        filename = DEFAULT_FILENAME if len(sys.argv) < 3 else sys.argv[2]
-        check_e(read_bytes(filename), read('w.txt'))
+        check_e(read_bin(sys.argv[2], False), read('w.txt'))
     elif operation == '-c':
-        check(read_bytes('e.bin'), read_bytes('es.bin'))
+        check(*read_mul('e.txt', 'es.txt'))
+    elif operation == '-clean':
+        for entry in os.listdir(FULL_NAME_PROTOCOL):
+            os.remove(os.path.join(FULL_NAME_PROTOCOL, entry))
 
 
 if __name__ == '__main__':
