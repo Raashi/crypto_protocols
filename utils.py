@@ -75,4 +75,3 @@ def ratio(p, q, m):
 
 def get_bits(e: int, count=-1):
     return [int(bit) for bit in bin(e)[2:count]]
-
