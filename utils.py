@@ -8,10 +8,6 @@ if not os.path.exists(FULL_NAME_PROTOCOL):
     os.mkdir(FULL_NAME_PROTOCOL)
 
 
-def get_descriptor(filename, mode, subfolder=True):
-    pass
-
-
 def read(filename):
     with open(os.path.join(FULL_NAME_PROTOCOL, filename)) as f:
         return int(f.read())
