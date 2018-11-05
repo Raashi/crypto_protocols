@@ -14,16 +14,17 @@ def gen_params(pq_size, k):
     p = prime.gen_prime(pq_size)
     q = prime.gen_prime(pq_size)
     n = p * q
+    write('n.txt', n)
+    write('k.txt', k)
 
+
+def gen_keys(n, k):
     s = []
     while len(s) < k:
         si = random.randint(1, n - 1)
         if gcd(si, n) == 1:
             s.append(si)
     v = [pow(get_inverse(si, n), 2, n) for si in s]
-
-    write('n.txt', n)
-    write('k.txt', k)
     write('s_key.txt', s)
     write('v_key.txt', v)
 
@@ -59,6 +60,8 @@ def main():
 
     if operation == '-gp':
         gen_params(int(sys.argv[2]), int(sys.argv[3]))
+    elif operation == '-gk':
+        gen_keys(*read_mul('n.txt', 'k.txt'))
     elif operation == '-s':
         sign(*read_mul('n.txt', 'k.txt'), read_bin(sys.argv[2], False), read_struct('s_key.txt'))
     elif operation == '-c':
