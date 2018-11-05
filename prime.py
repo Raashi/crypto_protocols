@@ -10,8 +10,8 @@ mul_small_primes = functools.reduce(operator.mul, small_primes)
 
 miller_rabin_tests_count = 5
 
-k_max = 20
 k_min = 1
+k_max = 20
 
 
 def check_len(q, desired_size):
@@ -79,7 +79,7 @@ def gen_prime(size):
     return q
 
 
-def gen_pq(size):
+def gen_schnorr(size):
     while True:
         q = gen_prime(size)
         p = q << (k_min - 1)
@@ -96,3 +96,17 @@ def gen_pq(size):
         g = random.randint(1, p - 1)
         if pow(g, q, p) == 1:
             return p, q, g
+
+
+def gen_diffie(size):
+    while True:
+        q = gen_prime(size)
+        p = q << (k_min - 1)
+        for idx in range(k_min, k_max):
+            p <<= 1
+            if isprime(p + 1):
+                p += 1
+                break
+        else:
+            continue
+        return p, q

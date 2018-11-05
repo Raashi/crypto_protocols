@@ -9,7 +9,7 @@ OPERATIONS = ['-gp', '-gk', '-gx', '-gc', '-gs', '-a']
 
 
 def gen_params(size):
-    p, q, g = prime.gen_pq(size)
+    p, q, g = prime.gen_schnorr(size)
     write('p.txt', p)
     write('q.txt', q)
     write('g.txt', g)
