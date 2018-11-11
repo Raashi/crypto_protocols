@@ -33,6 +33,11 @@ def write(filename, value):
         f.write(str(value))
 
 
+def cleanup():
+    for entry in os.listdir(FULL_NAME_PROTOCOL):
+        os.remove(os.path.join(FULL_NAME_PROTOCOL, entry))
+
+
 def gcd(x, y):
     x, y = max(x, y), min(x, y)
     while y:

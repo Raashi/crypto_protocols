@@ -2,7 +2,7 @@ import sys
 import time
 import random
 
-from utils import read, write
+from utils import read, write, cleanup
 import prime
 prime.k_min = 1
 prime.k_max = 10
@@ -18,7 +18,7 @@ def primitive_root(p):
         q >>= 1
     degs = [p // 2, p // q]
     for _trial in range(MAX_PRIMITIVE_ROOT_TRIALS):
-        g = random.randint(2, p)
+        g = random.randint(2, p - 1)
         if all([pow(g, d, p) != 1 for d in degs]):
             return g
     raise ArithmeticError('Не могу найти примитивный корень в GF({})'.format(p + 1))
@@ -35,22 +35,26 @@ def gen_params(size):
 def gen_x(n, g):
     x = random.randint(1, n - 1)
     ax = pow(g, x, n)
+    print('Ax =', ax)
     write('x.txt', x), write('ax.txt', ax)
 
 
 def gen_y(n, g):
     y = random.randint(1, n - 1)
     by = pow(g, y, n)
+    print('By =', by)
     write('y.txt', y), write('by.txt', by)
 
 
 def compute_ka(n, x, by):
     ka = pow(by, x, n)
+    print('Ka =', ka)
     write('ka.txt', ka)
 
 
 def compute_kb(n, y, ax):
     kb = pow(ax, y, n)
+    print('Kb =', kb)
     write('kb.txt', kb)
 
 
@@ -71,6 +75,9 @@ def main():
         ka, kb = read('ka.txt'), read('kb.txt')
         print('Ka = {}\nKb = {}'.format(ka, kb))
         print('Ключи одинаковые' if ka == kb else 'Ошибка: ключи разные')
+    elif op == '-clean':
+        cleanup()
+        print('Папка очищена')
     else:
         print('Wrong operation')
 
