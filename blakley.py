@@ -32,7 +32,14 @@ def solve(mat_orig, d, p, check_for_dependence):
     return True if check_for_dependence else d
 
 
-def gen_parts(p_size, msg, n, k):
+def gen_parts(p_size, m, n, k):
+    with open(m, 'rb') as f:
+        msg = int.from_bytes(f.read(), byteorder='big')
+
+    msg_size = msg.bit_length()
+    if p_size <= msg_size:
+        p_size = msg_size + 1
+        print('Размер модуля изменен до размера сообщения {} бит'.format(p_size))
     p = gen_prime(p_size)
     if msg >= p:
         raise ValueError('Сообщение больше модуля: msg={} > p={}'.format(msg, p))
@@ -60,12 +67,13 @@ def check_secret(p, parts):
     d = [-part[-1] % p for part in parts]
     sol = solve(mat, d, p, False)
     x = sol[0]
-    print('Секрет =', x)
+    secret = bytes.fromhex(hex(x)[2:]).decode('windows-1251')
+    print('Секрет =', secret)
 
 
 def main():
     if sys.argv[1] == '-g':
-        p_size, msg, n, k = int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
+        p_size, msg, n, k = int(sys.argv[2]), sys.argv[3], int(sys.argv[4]), int(sys.argv[5])
         gen_parts(p_size, msg, n, k)
     elif sys.argv[1] == '-c':
         idx_parts = list(map(lambda idx: int(idx), sys.argv[2:]))
