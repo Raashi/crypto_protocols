@@ -3,12 +3,13 @@ import copy
 import random
 from operator import add
 from functools import reduce
+from itertools import combinations
 
 from utils import read, read_struct, write, ratio, cleanup
 from prime import gen_prime
 
 
-def solve(mat_orig, d, p, check_for_dependence):
+def solve(mat_orig, d, p):
     mat = copy.deepcopy(mat_orig)
     d = d[:]
     k = len(mat)
@@ -17,19 +18,25 @@ def solve(mat_orig, d, p, check_for_dependence):
         for j in range(len(mat[0])):
             mat[i][j] = ratio(mat[i][j], aii, p)
         d[i] = ratio(d[i], aii, p)
-        if check_for_dependence and mat[i][i] == 0:
-            return False
-        assert mat[i][i] == 1
-        for row in range(k):
+        for row in range(len(mat)):
             if row != i:
                 coeff = -mat[row][i] % p
                 d[row] = (d[row] + d[i] * coeff) % p
                 for col in range(len(mat[0])):
                     mat[row][col] = (mat[row][col] + mat[i][col] * coeff) % p
-                if check_for_dependence and not any(mat[row]):
-                    if i < k - 1:
-                        return False
-    return True if check_for_dependence else d
+    if any(map(lambda r: not any(mat[r]), range(k))):
+        return
+    return d
+
+
+def check_independence(mat_orig, p):
+    n, k = len(mat_orig), len(mat_orig[0])
+
+    for idx, comb in enumerate(combinations(list(range(n)), k)):
+        mat = list(map(lambda x: mat_orig[x][:], comb))
+        if solve(mat, [0] * k, p) is None:
+            return False
+    return True
 
 
 def gen_parts(p_size, m, n, k):
@@ -54,7 +61,7 @@ def gen_parts(p_size, m, n, k):
             parts.append(tuple(coeffs + [d]))
             mat.append(coeffs), ds.append(-d % p)
 
-        if not solve(mat, ds, p, True):
+        if p_size > 20 or check_independence(mat, p):
             break
 
     write('p.txt', p)
@@ -68,16 +75,15 @@ def check_secret(p, parts):
         print('Не хватает частей секрета')
         return
     d = [-part[-1] % p for part in parts]
-    sol = solve(mat, d, p, False)
+    sol = solve(mat, d, p)
     x = sol[0]
-    secret = bytes.fromhex(hex(x)[2:]).decode('windows-1251')
-    print('Секрет =', secret)
+    with open('secret.txt', 'wb') as f:
+        f.write(bytes.fromhex(hex(x)[2:]))
 
 
 def main():
     if sys.argv[1] == '-g':
-        p_size, msg, n, k = int(sys.argv[2]), sys.argv[3], int(sys.argv[4]), int(sys.argv[5])
-        gen_parts(p_size, msg, n, k)
+        gen_parts(int(sys.argv[2]), sys.argv[3], int(sys.argv[4]), int(sys.argv[5]))
     elif sys.argv[1] == '-c':
         idx_parts = list(map(lambda idx: int(idx), sys.argv[2:]))
         if len(set(idx_parts)) != len(idx_parts):
@@ -93,11 +99,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # mat = [
-    #     [1, 1, 1],
-    #     [2, 2, 2],
-    #     [2, 3, 2],
-    #     [1, 3, 4]
-    # ]
-    # d = [1, 2, 3, 4]
-    # print(solve(mat, d, 5, True))
