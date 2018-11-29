@@ -57,13 +57,16 @@ def gen_parts(p_size, m, n, k):
         if not solve(mat, ds, p, True):
             break
 
-    write('p.txt', p), write('k.txt', k)
+    write('p.txt', p)
     for idx, part in enumerate(parts):
         write('part_{}.txt'.format(idx + 1), part)
 
 
 def check_secret(p, parts):
     mat = [list(part)[:-1] for part in parts]
+    if len(mat) < len(mat[0]):
+        print('Не хватает частей секрета')
+        return
     d = [-part[-1] % p for part in parts]
     sol = solve(mat, d, p, False)
     x = sol[0]
@@ -78,7 +81,7 @@ def main():
     elif sys.argv[1] == '-c':
         idx_parts = list(map(lambda idx: int(idx), sys.argv[2:]))
         if len(set(idx_parts)) != len(idx_parts):
-            print('Дупликаты в массиве индексов')
+            print('Дубликаты в массиве индексов')
             return
         parts = [read_struct('part_{}.txt'.format(idx)) for idx in idx_parts]
         check_secret(read('p.txt'), parts)
