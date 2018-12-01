@@ -18,7 +18,11 @@ def read_mul(*filenames):
 
 
 def read_struct(filename):
-    with open(os.path.join(FULL_NAME_PROTOCOL, filename)) as f:
+    filename = os.path.join(FULL_NAME_PROTOCOL, filename)
+    if not os.path.exists(filename):
+        print('ОШИБКА: файл {} не существует'.format(filename))
+        exit(1)
+    with open(filename) as f:
         return eval(f.read())
 
 

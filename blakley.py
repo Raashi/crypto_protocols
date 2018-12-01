@@ -23,17 +23,29 @@ def solve(mat_orig, d, p):
                 d[row] = (d[row] + d[i] * coeff) % p
                 for col in range(k):
                     mat[row][col] = (mat[row][col] + mat[i][col] * coeff) % p
-    if any(map(lambda r: not any(mat[r]), range(k))):
-        return
     return d
 
 
-def gen_parts(p_size, m, n, k):
-    if n < k:
+def gen_mat(p, n, m, q):
+    a = [[0 for _j in range(m + 1)] for _i in range(n)]
+    # расставить единицы
+    for i in range(n):
+        a[i][random.randint(0, m)] = 1
+    # расставить остальные элементы
+    for i in range(n):
+        for j in range(m):
+            if a[i][j] != 1:
+                a[i][j] = random.randint(2, p - 1)
+        a[i][m] = -reduce(add, map(lambda ax: ax[0] * ax[1] % p, zip(a[i][:-1], q))) % p
+    return a
+
+
+def gen_parts(p_size, msg, n, m):
+    if n < m:
         print('ОШИБКА: число долей={} больше k={}'.format(n, k))
         return
 
-    with open(m, 'rb') as f:
+    with open(msg, 'rb') as f:
         msg = int.from_bytes(f.read(), byteorder='big')
 
     msg_size = msg.bit_length()
@@ -41,22 +53,12 @@ def gen_parts(p_size, m, n, k):
         p_size = msg_size + 1
         print('Размер модуля изменен до размера сообщения {} бит'.format(p_size))
     p = gen_prime(p_size)
-    q = [msg] + [random.randint(0, p - 1) for _idx in range(k - 1)]
+    q = [msg] + [random.randint(0, p - 1) for _idx in range(m - 1)]
 
-    while True:
-        parts = []
-        mat, ds = [], []
-        for i in range(n):
-            coeffs = [random.randint(0, p - 1) for _idx in range(k)]
-            d = -reduce(add, map(lambda ax: ax[0] * ax[1] % p, zip(coeffs, q))) % p
-            parts.append(tuple(coeffs + [d]))
-            mat.append(coeffs), ds.append(-d % p)
-
-        if solve(mat, ds, p) is not None:
-            break
+    mat = gen_mat(p, n, m, q)
 
     write('p.txt', p)
-    for idx, part in enumerate(parts):
+    for idx, part in enumerate(mat):
         write('part_{}.txt'.format(idx + 1), part)
 
 
