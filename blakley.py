@@ -1,6 +1,7 @@
 import sys
 import copy
 import random
+from math import ceil
 from operator import add
 from functools import reduce
 
@@ -40,22 +41,23 @@ def gen_mat(p, n, m, q):
     return a
 
 
-def gen_parts(p_size, msg, n, m):
-    if n < m:
+def gen_parts(p_size, msg, n, k):
+    if n < k:
         print('ОШИБКА: число долей={} больше k={}'.format(n, k))
         return
 
     with open(msg, 'rb') as f:
-        msg = int.from_bytes(f.read(), byteorder='big')
+        msg = bytearray(f.read())
 
-    msg_size = msg.bit_length()
-    if p_size <= msg_size:
-        p_size = msg_size + 1
-        print('Размер модуля изменен до размера сообщения {} бит'.format(p_size))
+    part_size = ceil(len(msg) / k)
+    q = [int.from_bytes(msg[i * part_size:(i + 1) * part_size], byteorder='big') for i in range(k)]
+
+    p_size_max = max(qi.bit_length() for qi in q) + 1
+    if p_size_max > p_size:
+        p_size = p_size_max + 1
+        print('ЛОГ: длина модуля p изменена на {}'.format(p_size))
     p = gen_prime(p_size)
-    q = [msg] + [random.randint(0, p - 1) for _idx in range(m - 1)]
-
-    mat = gen_mat(p, n, m, q)
+    mat = gen_mat(p, n, k, q)
 
     write('p.txt', p)
     for idx, part in enumerate(mat):
@@ -68,10 +70,10 @@ def check_secret(p, parts):
         print('ОШИБКА: не хватает частей секрета')
         return
     d = [-part[-1] % p for part in parts]
-    sol = solve(mat, d, p)
-    x = sol[0]
+    q = solve(mat, d, p)
+    x = reduce(add, [qi.to_bytes(length=qi.bit_length() // 8, byteorder='big') for qi in q])
     with open('secret.txt', 'wb') as f:
-        f.write(bytes.fromhex(hex(x)[2:]))
+        f.write(x)
 
 
 def main():
