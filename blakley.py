@@ -71,7 +71,7 @@ def check_secret(p, parts):
         return
     d = [-part[-1] % p for part in parts]
     q = solve(mat, d, p)
-    x = reduce(add, [qi.to_bytes(length=qi.bit_length() // 8, byteorder='big') for qi in q])
+    x = reduce(add, [qi.to_bytes(length=ceil(qi.bit_length() / 8), byteorder='big') for qi in q])
     with open('secret.txt', 'wb') as f:
         f.write(x)
 
