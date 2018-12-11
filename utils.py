@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 
 NAME_PROTOCOL = os.path.basename(sys.argv[0])[:-3]
 FULL_NAME_PROTOCOL = 'files_' + NAME_PROTOCOL
@@ -7,10 +8,17 @@ FULL_NAME_PROTOCOL = 'files_' + NAME_PROTOCOL
 if not os.path.exists(FULL_NAME_PROTOCOL):
     os.mkdir(FULL_NAME_PROTOCOL)
 
+MAX_PRIMITIVE_ROOT_TRIALS = 10000
+
 
 def read(filename):
     with open(os.path.join(FULL_NAME_PROTOCOL, filename)) as f:
         return int(f.read())
+
+
+def read_string(filename):
+    with open(os.path.join(FULL_NAME_PROTOCOL, filename)) as f:
+        return f.read()
 
 
 def read_mul(*filenames):
@@ -80,3 +88,25 @@ def ratio(p, q, m):
 
 def get_bits(e: int, count=-1):
     return [int(bit) for bit in bin(e)[2:count]]
+
+
+def primitive(p):
+    """Только для простых p"""
+    q = p = p - 1
+    while q & 2 == 0:
+        q >>= 1
+    degs = [p // 2, p // q]
+    for _trial in range(MAX_PRIMITIVE_ROOT_TRIALS):
+        g = random.randint(2, p - 1)
+        if all([pow(g, d, p) != 1 for d in degs]):
+            return g
+    raise ArithmeticError('Не могу найти примитивный корень в GF({})'.format(p + 1))
+
+
+def is_primitive(p, h):
+    """Только для простых p"""
+    q = p = p - 1
+    while q & 2 == 0:
+        q >>= 1
+    degs = [p // 2, p // q]
+    return all([pow(h, d, p) != 1 for d in degs])

@@ -10,7 +10,7 @@ mul_small_primes = functools.reduce(operator.mul, small_primes)
 
 miller_rabin_tests_count = 5
 
-k_min = 1
+k_min = 5
 k_max = 20
 
 
