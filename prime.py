@@ -109,4 +109,9 @@ def gen_diffie(size):
                 break
         else:
             continue
-        return p, q
+        pp = p - 1
+        k = 0
+        while pp % 2 == 0:
+            pp //= 2
+            k += 1
+        return p, [(q, 1), (2, k)]

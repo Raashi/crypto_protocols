@@ -1,27 +1,32 @@
+from operator import mul
+from functools import reduce
 from utils import *
 from prime import gen_diffie
 
 
 def gen_pq(q_size):
     """Алиса"""
-    p, q = gen_diffie(q_size)
-    write('p.txt', p)
+    p, qr = gen_diffie(q_size)
+    write('p.txt', p), write('qr.txt', qr)
 
 
-def gen_ht(p):
+def gen_ht(p, qr):
     """Боб"""
-    h = primitive(p)
-    t = primitive(p)
+    pp = reduce(mul, map(lambda qi: qi[0] ** qi[1], qr)) + 1
+    if pp != p:
+        print('ОШИБКА: разложение p не совпадает с самим p')
+    h = primitive(p, qr)
+    t = primitive(p, qr)
     write('h.txt', h)
     write('t.txt', t)
 
 
-def gen_y(p, h, t):
+def gen_y(p, h, t, qr):
     """Алиса"""
-    if not is_primitive(p, h):
+    if not is_primitive(p, h, qr):
         print('ОШИБКА: h - не примитивный элемент в GF(p)')
         return
-    if not is_primitive(p, t):
+    if not is_primitive(p, t, qr):
         print('ОШИБКА: t - не примитивный элемент в GF(p)')
         return
     x = random.randint(2, p - 1)
@@ -64,9 +69,9 @@ def main():
     if op == '-gp' or op == 'debug':
         gen_pq(int(sys.argv[2]))
     if op == '-ght' or op == 'debug':
-        gen_ht(read('p.txt'))
+        gen_ht(read('p.txt'), read_struct('qr.txt'))
     if op == '-gy' or op == 'debug':
-        gen_y(*read_mul('p.txt', 'h.txt', 't.txt'))
+        gen_y(*read_mul('p.txt', 'h.txt', 't.txt'), read_struct('qr.txt'))
     if op == '-g' or op == 'debug':
         guess()
     if op == '-f' or op == 'debug':

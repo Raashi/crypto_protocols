@@ -90,12 +90,9 @@ def get_bits(e: int, count=-1):
     return [int(bit) for bit in bin(e)[2:count]]
 
 
-def primitive(p):
+def primitive(p, q2):
     """Только для простых p"""
-    q = p = p - 1
-    while q & 2 == 0:
-        q >>= 1
-    degs = [p // 2, p // q]
+    degs = [p // qi[0] for qi in q2]
     for _trial in range(MAX_PRIMITIVE_ROOT_TRIALS):
         g = random.randint(2, p - 1)
         if all([pow(g, d, p) != 1 for d in degs]):
@@ -103,10 +100,7 @@ def primitive(p):
     raise ArithmeticError('Не могу найти примитивный корень в GF({})'.format(p + 1))
 
 
-def is_primitive(p, h):
+def is_primitive(p, h, q2):
     """Только для простых p"""
-    q = p = p - 1
-    while q & 2 == 0:
-        q >>= 1
-    degs = [p // 2, p // q]
+    degs = [p // qi[0] for qi in q2]
     return all([pow(h, d, p) != 1 for d in degs])
